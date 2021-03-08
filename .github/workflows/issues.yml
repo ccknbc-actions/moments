@@ -38,7 +38,7 @@ jobs:
         git init
         git add -A
         git commit -m "$(date +"%Z %Y-%m-%d %A %H:%M:%S") Updated By Github Actions"
-        git push --force --quiet "https://ccknbc:${{ secrets.GITHUB_TOKEN }}@github.com/ccknbc-actions/blogroll.git" master:blogroll
+        git push --force --quiet "https://ccknbc:${{ secrets.GITHUB_TOKEN }}@github.com/ccknbc-actions/blogroll.git" master:issue
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@main
       with:
