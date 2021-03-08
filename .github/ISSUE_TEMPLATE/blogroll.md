@@ -54,7 +54,7 @@ img_animation: auto_rotate_right 0s linear infinite
 card_style: item
 
 # 自定义网站截图，当样式为 card 时可以自定义网站截图
-# 如果您的站点不常更新，可留空，会使用默认接口 https://image.thum.io/get/width/1024/crop/768/https://blog.ccknbc.cc
+# 如果您的站点不常更新，可留空，会使用默认接口 https://image.thum.io/get/width/1024/crop/768/allowJPG/wait/20/noanimate/https://blog.ccknbc.cc
 # 如果您的站点加载完毕耗时较长，请自行替换为此接口中网址部分填入 https://s0.wordpress.com/mshots/v1/https://blog.ccknbc.cc?w=1280&h=960
 # 如果您知道其他好用的接口，欢迎给我留言，谢谢
 screenshot: 
