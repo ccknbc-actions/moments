@@ -34,4 +34,5 @@ setting:
     - '·'
 
   block_site: # 屏蔽站点
-    - https://stevestudio.top/
+    - https://stevestudio.top
+    - https://ajie16.github.io
