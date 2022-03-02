@@ -14,39 +14,6 @@ def getLinkFriends(link):
     links.extend(re.findall(re.compile(r'<a href="https://(.*?)"'), str(html)))
 
 
-def getGiteeFriends(user, repo):
-    r"""获取Gitee友链
-
-    :param user: Gitee用户名
-    :param repo: Gitee友链仓库
-    """
-    gitee_repo = "https://gitee.com/api/v5/repos/" + user + "/" + repo + "/issues?state=open&sort=created&direction=asc&page=1&per_page=100"
-    gitee_links = requests.get(url=gitee_repo).json()
-    for gitee_link in gitee_links:
-        try:
-            if gitee_link['labels']:
-                link = re.findall(re.compile('//(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'), gitee_link['body'])[0]
-                links.append(link)
-        except Exception:
-            raise Exception('Gitee友链格式错误,请检查格式！！！')
-
-def getGitHubFriends(user, repo):
-    r"""获取GitHub友链
-
-    :param user: GitHub用户名
-    :param repo: GitHub友链仓库
-    """
-    github_repo = "https://api.github.com/repos/" + user + "/" + repo + "/issues?state=open&sort=created&direction=asc&page=1&per_page=100"
-    github_links = requests.get(url=github_repo).json()
-    for github_link in github_links:
-        try:
-            if github_link['labels']:
-                link = re.findall(re.compile('//(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'), github_link['body'])[0]
-                links.append(link)
-        except Exception:
-            raise Exception('GitHub友链格式错误,请检查格式！！！')
-
-
 def downloadFriends(url_prefix="https://image.thum.io/get/width/1024/crop/768/wait/20/noanimate/https://",
                     url_suffix="", suffix="png"):
     r"""根据links里的友链下载到指定文件夹
@@ -64,7 +31,5 @@ def downloadFriends(url_prefix="https://image.thum.io/get/width/1024/crop/768/wa
 
 
 if __name__ == '__main__':
-    # getLinkFriends("https://ccknbc.vercel.app/blogroll/")
-    getGiteeFriends("ccknbc", "blogroll")
-    getGitHubFriends("ccknbc-actions", "blogroll")
+    getLinkFriends("https://ccknbc.vercel.app/blogroll/")
     downloadFriends()
