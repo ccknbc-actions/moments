@@ -6,8 +6,6 @@ on:
       - main
   schedule:
     - cron: "0 0,6,12,18,21 * * *"
-  watch:
-    types: [started]
   repository_dispatch:
   workflow_dispatch:
 
@@ -35,7 +33,6 @@ env:
 
 jobs:
   build:
-    if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
