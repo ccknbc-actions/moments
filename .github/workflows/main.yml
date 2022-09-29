@@ -1,9 +1,9 @@
 name: update-friends-posts
 
-on: 
+on:
   push:
-    branches: 
-     - main
+    branches:
+      - main
   schedule:
     - cron: "0 0,6,12,18,21 * * *"
   repository_dispatch:
@@ -29,79 +29,77 @@ env:
   GITHUB_EMAIL: ${{ secrets.GH_EMAIL }} # 你的github邮箱
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
   # mongodb配置
-  MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI 支持'mongodb://'和'mongodb+srv://'
+  MONGODB_URI: ${{ secrets.MONGODB_URI }} # mongodb URI 支持'mongodb://'和'mongodb+srv://'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@main
+      - name: Checkout
+        uses: actions/checkout@main
 
-    - name: Set up Python
-      uses: actions/setup-python@main
-      with:
-        python-version: 3.8
-        cache: 'pip'
-        cache-dependency-path: 'hexo_circle_of_friends/requirements.txt'
-        
-    - uses: actions/cache@main
-      id: cache-pip-modules
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: 3.8
+          cache: "pip"
+          cache-dependency-path: "hexo_circle_of_friends/requirements.txt"
 
-    - name: Install requirements
-      working-directory: ./hexo_circle_of_friends
-      run: | 
-        pip install -r requirements.txt
+      - uses: actions/cache@main
+        id: cache-pip-modules
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-    - name: leancloud Update posts # leancloud
-      if: ${{ env.STORAGE_TYPE == 'leancloud' }}
-      env:
-        APP_ID: ${{ secrets.APPID }}
-        APP_KEY: ${{ secrets.APPKEY }}
-        LINK: ${{ secrets.LINK }}
-        PROXY: ${{ secrets.PROXY }}
-      working-directory: ./hexo_circle_of_friends
-      run: | 
-        python run.py
+      - name: Install requirements
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          pip install -r requirements.txt
 
-    - name: mysql Update posts # mysql
-      if: ${{ env.STORAGE_TYPE == 'mysql' }}
-      env:
-        MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        MYSQL_IP: ${{ secrets.MYSQL_IP }}
-        MYSQL_DB: ${{ secrets.MYSQL_DB }}
-      working-directory: ./hexo_circle_of_friends
-      run: |
-        python run.py
+      - name: leancloud Update posts # leancloud
+        if: ${{ env.STORAGE_TYPE == 'leancloud' }}
+        env:
+          APP_ID: ${{ secrets.APPID }}
+          APP_KEY: ${{ secrets.APPKEY }}
+          LINK: ${{ secrets.LINK }}
+          PROXY: ${{ secrets.PROXY }}
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          python run.py
 
-    - name: sqlite Update posts # sqlite
-      if: ${{ env.STORAGE_TYPE == 'sqlite' }}
-      env:
-        SQLITE_DB: ${{ secrets.SQLITE_DB }}
-      run: |
-        python ./hexo_circle_of_friends/run.py
+      - name: mysql Update posts # mysql
+        if: ${{ env.STORAGE_TYPE == 'mysql' }}
+        env:
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_IP: ${{ secrets.MYSQL_IP }}
+          MYSQL_DB: ${{ secrets.MYSQL_DB }}
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          python run.py
 
-    - name: Push sqlite data # sqlite push
-      if: ${{ env.STORAGE_TYPE == 'sqlite' }}
-      uses: github-actions-x/commit@v2.9
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Update data.db"
-        files: data.db
-        rebase: 'true'
-        name: ${{ env.GITHUB_NAME }}
-        email: ${{ env.GITHUB_EMAIL }}
+      - name: sqlite Update posts # sqlite
+        if: ${{ env.STORAGE_TYPE == 'sqlite' }}
+        env:
+          SQLITE_DB: ${{ secrets.SQLITE_DB }}
+        run: |
+          python ./hexo_circle_of_friends/run.py
 
-    - name: mongodb Update posts # mongodb
-      if: ${{ env.STORAGE_TYPE == 'mongodb' }}
-      env:
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
-      working-directory: ./hexo_circle_of_friends
-      run: |
-        python run.py
+      - name: mongodb Update posts # mongodb
+        if: ${{ env.STORAGE_TYPE == 'mongodb' }}
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          python run.py
+
+      - name: Keep Workflow Alive #因为 GitHub Action(bot)推送至仓库不会触发部署，且完成了仓库更新
+        run: |
+          date > KeepWorkflowAlive.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Keep Workflow Alive"
+          git push
