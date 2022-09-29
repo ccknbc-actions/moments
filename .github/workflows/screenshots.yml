@@ -6,8 +6,8 @@ on:
   #   types: [labeled, unlabeled, edited, closed, reopened, deleted]
   schedule:
     - cron: '0 16 * * *'
-  push:
-    branches: main
+  # push:
+  #   branches: main
 
 jobs:
   download:
@@ -39,6 +39,8 @@ jobs:
       uses: actions/setup-python@main
       with:
         python-version: 3.8
+        cache: "pip"
+        cache-dependency-path: "hexo_circle_of_friends/requirements.txt"
 
     - name: Install requirements #安装requests
       run: |

@@ -6,6 +6,8 @@ on:
       - main
   schedule:
     - cron: "0 0,6,12,18,21 * * *"
+  watch:
+    types: [started]
   repository_dispatch:
   workflow_dispatch:
 
@@ -33,6 +35,7 @@ env:
 
 jobs:
   build:
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }} || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,13 +48,13 @@ jobs:
           cache: "pip"
           cache-dependency-path: "hexo_circle_of_friends/requirements.txt"
 
-      - uses: actions/cache@main
-        id: cache-pip-modules
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      # - uses: actions/cache@main
+      #   id: cache-pip-modules
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
 
       - name: Install requirements
         working-directory: ./hexo_circle_of_friends
@@ -95,11 +98,17 @@ jobs:
         run: |
           python run.py
 
-      - name: Keep Workflow Alive #因为 GitHub Action(bot)推送至仓库不会触发部署，且完成了仓库更新
-        run: |
-          date > KeepWorkflowAlive.txt
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "Keep Workflow Alive"
-          git push
+      - name: Delete Workflow Runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 1
+
+      # - name: Keep Workflow Alive
+      #   run: |
+      #     date > KeepWorkflowAlive.txt
+      #     git config user.name github-actions[bot]
+      #     git config user.email github-actions[bot]@users.noreply.github.com
+      #     git add .
+      #     git commit -m "Keep Workflow Alive"
+      #     git push
