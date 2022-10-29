@@ -11,6 +11,7 @@ on:
 env:
   # 在这里查看需要添加的secert
   # 通用配置
+  SIMPLE_MODE: false # 极简模式是否开启
   STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }} # 请修改为你的存储方式，默认为leancloud
   PROXY: ${{ secrets.PROXY }} # 可选，http代理
   # leancloud、mysql、sqlite、mongodb配置四选一即可
@@ -51,6 +52,7 @@ jobs:
     - name: set env
       run: |
         echo "BASE_PATH=$(pwd)" >> $GITHUB_ENV && echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+        date > KeepWorkflowAlive.txt
 
     - name: leancloud Update posts # leancloud
       if: ${{ env.STORAGE_TYPE == 'leancloud' }}
@@ -75,7 +77,7 @@ jobs:
         python run.py
 
     - name: sqlite Update posts # sqlite
-      if: ${{ env.STORAGE_TYPE == 'sqlite' }}
+      if: ${{ env.STORAGE_TYPE == 'sqlite' || env.SIMPLE_MODE == 'true' }}
       env:
         PYTHONPATH: ${{ env.PYTHONPATH }}
         SQLITE_DB: ${{ secrets.SQLITE_DB }}
@@ -84,14 +86,14 @@ jobs:
 
     - name: Push sqlite data # sqlite push
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
-      uses: github-actions-x/commit@v2.9
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Update data.db"
-        files: data.db
-        rebase: 'true'
-        name: ${{ env.GITHUB_NAME }}
-        email: ${{ env.GITHUB_EMAIL }}
+        branch: main
+        folder: data.db
+        force: true
+        git-config-name: "github-actions[bot]"
+        git-config-email: "github-actions[bot]@users.noreply.github.com"
+        commit-message: ${{ github.event.head_commit.message }}
 
     - name: mongodb Update posts # mongodb
       if: ${{ env.STORAGE_TYPE == 'mongodb' }}
@@ -100,6 +102,29 @@ jobs:
       working-directory: ./hexo_circle_of_friends
       run: |
         python run.py
-        
-    - name: keep alive
-      uses: gautamkrishnar/keepalive-workflow@master # keep workflows from being suspended when no commit for a long time
+
+    - name: simple mode transform # 极简模式转换
+      if: ${{ env.SIMPLE_MODE == 'true' }}
+      run: |
+        python ./hexo_circle_of_friends/utils/simple_mode_transform_json.py
+
+    - name: simple mode push # 推送极简模式
+      if: ${{ env.SIMPLE_MODE == 'true' }}
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: main
+        folder: data.json
+        force: true
+        git-config-name: "github-actions[bot]"
+        git-config-email: "github-actions[bot]@users.noreply.github.com"
+        commit-message: ${{ github.event.head_commit.message }}
+
+    - name: keep workflow alive
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: main
+        folder: ./
+        force: true
+        git-config-name: "github-actions[bot]"
+        git-config-email: "github-actions[bot]@users.noreply.github.com"
+        commit-message: ${{ github.event.head_commit.message }}
