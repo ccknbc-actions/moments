@@ -12,9 +12,9 @@ env:
   # 在这里查看需要添加的secret
   # 通用配置
   SIMPLE_MODE: false # 极简模式是否开启
-  STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}  # 根据你选择的存储添加：sqlite、leancloud、mysql、mongodb
+  STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }} # 请修改为你的存储方式，默认为leancloud
   PROXY: ${{ secrets.PROXY }} # 可选，http代理
-  # leancloud、mysql、sqlite配置三选一即可
+  # leancloud、mysql、sqlite、mongodb配置四选一即可
   # leancloud配置
   APPID: ${{ secrets.APPID }}
   APPKEY: ${{ secrets.APPKEY }}
@@ -30,6 +30,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
   # mongodb配置
   MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI 支持'mongodb://'和'mongodb+srv://'
+  TZ: Asia/Shanghai
 
 jobs:
   build:
@@ -84,14 +85,14 @@ jobs:
 
     - name: Push sqlite data # sqlite push
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: github-actions-x/commit@v2.9
       with:
-        branch: main
-        folder: data.db
-        force: true
-        git-config-name: "github-actions[bot]"
-        git-config-email: "github-actions[bot]@users.noreply.github.com"
-        commit-message: ${{ github.event.head_commit.message }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update data.db"
+        files: data.db
+        rebase: 'true'
+        name: ${{ env.GITHUB_NAME }}
+        email: ${{ env.GITHUB_EMAIL }}
 
     - name: mongodb Update posts # mongodb
       if: ${{ env.STORAGE_TYPE == 'mongodb' }}
@@ -108,11 +109,14 @@ jobs:
 
     - name: simple mode push # 推送极简模式
       if: ${{ env.SIMPLE_MODE == 'true' }}
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: github-actions-x/commit@v2.9
       with:
-        branch: main
-        folder: data.json
-        force: true
-        git-config-name: "github-actions[bot]"
-        git-config-email: "github-actions[bot]@users.noreply.github.com"
-        commit-message: ${{ github.event.head_commit.message }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update data.json"
+        files: data.json
+        rebase: 'true'
+        name: github-actions[bot]
+        email: github-actions@noreply.github.com
+
+    - name: keep alive
+      uses: gautamkrishnar/keepalive-workflow@master # keep workflows from being suspended when no commit for a long time
