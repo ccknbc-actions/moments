@@ -6,7 +6,7 @@ PyMySQL==1.1.1
 SQLAlchemy==1.4.31
 lxml==4.6.4
 pymongo==4.6.3
-dnspython==2.2.0
+dnspython==2.6.1
 aiohttp==3.8.5
 Werkzeug==3.0.3
 pydantic==1.10.13
