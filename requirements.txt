@@ -2,7 +2,7 @@ leancloud==2.9.7
 fastapi==0.68.0
 uvicorn==0.14.0
 requests
-PyMySQL==1.0.2
+PyMySQL==1.1.1
 SQLAlchemy==1.4.31
 lxml==4.6.4
 pymongo==4.0.1
