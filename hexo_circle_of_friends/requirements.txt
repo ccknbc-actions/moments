@@ -10,7 +10,7 @@ click==8.0.3
 constantly==15.1.0
 cryptography==42.0.4
 cssselect==1.1.0
-fastapi==0.68.0
+fastapi==0.109.1
 gevent==21.8.0
 greenlet==1.1.2
 h11==0.13.0
