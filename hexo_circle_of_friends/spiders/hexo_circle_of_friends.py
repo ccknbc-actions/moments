@@ -39,6 +39,9 @@ class FriendpageLinkSpider(scrapy.Spider):
     name = 'hexo_circle_of_friends'
     allowed_domains = ['*']
     start_urls = []
+    custom_settings = {
+        "REQUEST_FINGERPRINTER_IMPLEMENTATION": "2.7"
+    }
 
     def __init__(self, name=None, **kwargs):
         # 友链队列
