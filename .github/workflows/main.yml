@@ -37,10 +37,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
+
+    - name: Cache pip packages
+    uses: actions/cache@v4
+    with:
+      path: ~/.cache/pip
+      key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      restore-keys: |
+        ${{ runner.os }}-pip-
 
     - name: Set up Python
-      uses: actions/setup-python@main
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
         cache: "pip"
@@ -119,5 +127,15 @@ jobs:
         name: github-actions[bot]
         email: github-actions@noreply.github.com
 
-    - name: keep alive
-      uses: gautamkrishnar/keepalive-workflow@master # keep workflows from being suspended when no commit for a long time
+  keepalive-workflow:
+    name: Keepalive Workflow
+    if: ${{ always() }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          use_api: false
