@@ -33,19 +33,19 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  build:
+  update-friends-posts:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
     - name: Cache pip packages
-    uses: actions/cache@v4
-    with:
-      path: ~/.cache/pip
-      key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-      restore-keys: |
-        ${{ runner.os }}-pip-
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -130,7 +130,7 @@ jobs:
   keepalive-workflow:
     name: Keepalive Workflow
     if: ${{ always() }}
-    needs: build
+    needs: update-friends-posts
     runs-on: ubuntu-latest
     permissions:
       contents: write
